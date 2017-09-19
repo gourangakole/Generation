@@ -126,7 +126,16 @@ void drawHisto(TH1F* h, string unit = "GeV", string outputDir = "output")
      c1->SaveAs((outputDir+"/"+string(h->GetName())+".png").c_str());
      c1->SaveAs((outputDir+"/"+string(h->GetName())+".pdf").c_str());
 
+     TCanvas* c2 = new TCanvas("c2","c2",1);
+     FPCanvasStyle(c2);
+     c2->SetLogy();
+     H2->Draw();
+     h->Draw("H,same");
+     c2->SaveAs((outputDir+"/"+string(h->GetName())+"_log.png").c_str());
+     c2->SaveAs((outputDir+"/"+string(h->GetName())+"_log.pdf").c_str());
+
      delete c1;
+     delete c2;
      delete H2;
 }
 
