@@ -53,6 +53,7 @@
 #include "TChain.h"
 #include "TCanvas.h"
 #include "TPad.h"
+#include "TLorentzVector.h"
 
 #include <fstream>
 #include <string>
@@ -71,19 +72,53 @@
 
 using namespace std;
 
-void chooseParticles(vector<string>& genParticles_, vector<string>& name, vector<int>& pdgId, vector<int>& status, vector<int>& mother)
+void chooseParticles(vector<string>& genParticles, vector<string>& sumParticles, vector<string>& name, vector<int>& pdgId, vector<int>& status, vector<int>& mother, vector< vector<int> >* position)
 {
-     for(unsigned int iPart = 0; iPart < genParticles_.size(); iPart++ ) {
+     for(unsigned int iPart = 0; iPart < genParticles.size(); iPart++ ) {
 
-         istringstream splitter(genParticles_.at(iPart));
+         istringstream splitter(genParticles.at(iPart));
          vector<string> tokens{istream_iterator<string>{splitter},istream_iterator<string>{}};
          name.push_back(tokens.at(0));
+
          if( tokens.size() > 1 )
          { pdgId.push_back(stoi(tokens.at(1))); }
+         else { pdgId.push_back(-999); }
+
          if( tokens.size() > 2 )
          { status.push_back(stoi(tokens.at(2))); }
+         else { status.push_back(-999); }
+
          if( tokens.size() > 3 )
          { mother.push_back(stoi(tokens.at(3))); }
+         else { mother.push_back(-999); }
+
+     }
+
+     cout << "\n--- genParticles ---" << endl;
+     for(unsigned int iPart = 0; iPart < genParticles.size(); iPart++ )
+         cout << name.at(iPart) << " " << pdgId.at(iPart) << " " << status.at(iPart) << " " << mother.at(iPart) << std::endl;
+     
+     (*position).resize(sumParticles.size());
+     for(unsigned int iSum = 0; iSum < sumParticles.size(); iSum++ ) {
+
+         istringstream splitter(sumParticles.at(iSum));
+         vector<string> tokens{istream_iterator<string>{splitter},istream_iterator<string>{}};
+         
+         (*position)[iSum].resize(tokens.size());
+         for(unsigned int iPart = 0; iPart < tokens.size(); iPart++ )
+             (*position)[iSum][iPart] = stoi(tokens.at(iPart))-1;
+     }
+
+
+     cout << "\n--- sumParticles ---" << endl;
+     for(unsigned int iSum = 0; iSum < sumParticles.size(); iSum++ )
+     {
+         cout << "---> Sum: " << iSum+1 << endl;
+         for(unsigned int iPart = 0; iPart < (*position)[iSum].size(); iPart++ ) 
+         {
+             int pos = (*position)[iSum][iPart];
+             cout << name.at(pos) << " " << pdgId.at(pos) << " " << status.at(pos) << " " << mother.at(pos) << std::endl;
+         }
      }
 }
 
@@ -94,12 +129,18 @@ void setVariables(vector<string>& genVariables_, vector<string>& var, vector<int
          istringstream splitter(genVariables_.at(iVar));
          vector<string> tokens{istream_iterator<string>{splitter},istream_iterator<string>{}};
          var.push_back(tokens.at(0));
+
          if( tokens.size() > 1 )
          { nbins.push_back(stoi(tokens.at(1))); }
+         else { nbins.push_back(-999); }
+
          if( tokens.size() > 2 )
          { min.push_back(stof(tokens.at(2))); }
+         else { min.push_back(-999.); }
+
          if( tokens.size() > 3 )
          { max.push_back(stof(tokens.at(3))); }
+         else { max.push_back(-999.); }
      }
 }
 
@@ -176,18 +217,21 @@ int main(int argc, char** argv)
     int ievt = 0; 
     
     vector<string> genParticles_ = genParticlesOpt.getParameter< vector<string> >( "genParticles" );
+    vector<string> sumParticles_ = genParticlesOpt.getParameter< vector<string> >( "sumParticles" );
     vector<string> name_;
     vector<int> pdgId_;
     vector<int> status_;
     vector<int> mother_;
-    chooseParticles(genParticles_, name_, pdgId_, status_, mother_);
+    vector< vector<int> > position_;
+    chooseParticles(genParticles_, sumParticles_, name_, pdgId_, status_, mother_, &position_);
     
     vector<string> genVariables_ = genParticlesOpt.getParameter< vector<string> >( "genVariables" );
     vector<string> genVar_;
     vector<int> genNbins_;
     vector<float> genMin_; 
     vector<float> genMax_;
-    setVariables(genVariables_, genVar_, genNbins_, genMin_, genMax_);
+    setVariables(genVariables_, genVar_, genNbins_, genMin_, genMax_);  
+    
 
     vector<string> jetTypes_ = genJetOpt.getParameter< vector<string> >( "jetTypes" );
     vector<string> jetVariables_ = genJetOpt.getParameter< vector<string> >( "jetVariables" );
@@ -197,6 +241,10 @@ int main(int argc, char** argv)
     vector<float> jetMax_;
     setVariables(jetVariables_, jetVar_, jetNbins_, jetMin_, jetMax_);
 
+    cout << "\n--- genJets ---" << endl;
+    for(unsigned int iJet=0; iJet < jetTypes_.size(); iJet++)
+        cout << jetTypes_.at(iJet) << endl;
+
     vector<string> metTypes_ = genMETOpt.getParameter< vector<string> >( "metTypes" );
     vector<string> metVariables_ = genMETOpt.getParameter< vector<string> >( "metVariables" );
     vector<string> metVar_;
@@ -204,6 +252,16 @@ int main(int argc, char** argv)
     vector<float> metMin_; 
     vector<float> metMax_;
     setVariables(metVariables_, metVar_, metNbins_, metMin_, metMax_);
+
+    cout << "\n--- genMET ---" << endl;
+    for(unsigned int iMet=0; iMet < metTypes_.size(); iMet++)
+        cout << metTypes_.at(iMet) << endl;
+
+    if(genParticles_.size() == 0 && jetTypes_.size() == 0 && metTypes_.size() == 0)
+    {
+       cout << "\n WARNING: no genParticles, no genJets and no genMET \n" << endl;  
+       return 0;
+    }
 
     //Set genHistos
     vector< vector<TH1F*> > genHistos;
@@ -214,7 +272,23 @@ int main(int argc, char** argv)
     for(unsigned int iPart=0; iPart<genParticles_.size(); iPart++)
         for(unsigned int iVar=0; iVar<genVariables_.size(); iVar++)
             genHistos.at(iPart).at(iVar) = new TH1F((name_.at(iPart)+"_"+genVar_.at(iVar)).c_str(),"",genNbins_.at(iVar),genMin_.at(iVar),genMax_.at(iVar));
-        
+
+    //Set sumHistos
+    vector< vector<TH1F*> > sumHistos;
+    sumHistos.resize(sumParticles_.size());
+    for(unsigned int iSum=0; iSum<sumParticles_.size(); iSum++)
+        sumHistos[iSum].resize(genVariables_.size());
+
+    for(unsigned int iSum=0; iSum<sumParticles_.size(); iSum++)
+    {
+        string sumName = "";
+        for(unsigned int iPos=0; iPos<position_.at(iSum).size(); iPos++)
+            sumName = sumName+name_.at(position_.at(iSum).at(iPos))+"_";
+
+        for(unsigned int iVar=0; iVar<genVariables_.size(); iVar++)
+            sumHistos.at(iSum).at(iVar) = new TH1F((sumName+genVar_.at(iVar)).c_str(),"",genNbins_.at(iVar),genMin_.at(iVar),genMax_.at(iVar));
+    }
+   
     //Set metHistos
     vector< vector<TH1F*> > metHistos;
     metHistos.resize(metTypes_.size());
@@ -235,30 +309,38 @@ int main(int argc, char** argv)
         for(unsigned int iVar=0; iVar<jetVariables_.size(); iVar++)
             jetHistos.at(iJet).at(iVar) = new TH1F((jetTypes_.at(iJet)+"_"+jetVar_.at(iVar)).c_str(),"",jetNbins_.at(iVar),jetMin_.at(iVar),jetMax_.at(iVar));
     
-    
-    cout << "--- Reading entries ---" << endl;
-    for(unsigned int iFile=0; iFile<inputFiles_.size(); ++iFile){
+    vector<TLorentzVector> p4_tmp;
+    p4_tmp.resize(sumParticles_.size());
+
+    vector<TLorentzVector> sum_p4;
+    sum_p4.resize(sumParticles_.size());
+
+    bool gotoMain = false;
+    for(unsigned int iFile=0; iFile<inputFiles_.size() && !gotoMain; ++iFile){
 
         TFile* inFile = TFile::Open(inputFiles_[iFile].c_str());
         if(inFile){
-
+            
+           cout << "\n--- Reading file: " << inputFiles_[iFile].c_str() << endl;
            fwlite::Event ev(inFile);   
-           for(ev.toBegin(); !ev.atEnd(); ++ev, ++ievt){
+              
+           cout << "\n--- Reading entries ---" << endl;
+           for(ev.toBegin(); !ev.atEnd() && !gotoMain; ++ev, ++ievt){
                       
                edm::EventBase const & event = ev;
-	       if(maxEvents_>0 ? ievt+1>maxEvents_ : false) break;
+	       if(ievt>maxEvents_-2 && maxEvents_ != -1) gotoMain = true;
 
-               if(ievt%1000==0) cout << "--- Reading entry = " << ievt << endl;
-
+               if(ievt%1000==0) cout << "--- Reading entry = " << ievt+1 << endl;
+               
                // Handle to the GenParticle collection
 	       edm::Handle< vector<reco::GenParticle> > genParticles;
 	       event.getByLabel(string("genParticles"), genParticles);
-               
-               if(ievt%1000==0) cout << "--- Reading genParticles ---" << endl;
-               for(vector<reco::GenParticle>::const_iterator part=genParticles->begin(); part!=genParticles->end(); ++part)    
+ 
+               for(vector<reco::GenParticle>::const_iterator part=genParticles->begin(); part!=genParticles->end(); ++part)
+               {    
                    for(unsigned int iPart = 0; iPart<genParticles_.size(); iPart++)
                    {
-                       if(part->pdgId() != pdgId_[iPart] || part->status() != status_[iPart] || (mother_[iPart] != 0 && part->mother()->pdgId() != mother_[iPart])) continue;
+                       if(part->pdgId() != pdgId_[iPart] || part->status() != status_[iPart] || (mother_[iPart] != -999 && part->mother()->pdgId() != mother_[iPart])) continue;
                        for(unsigned int iVar=0; iVar<genVariables_.size(); iVar++)
                        {
                            if(genVar_.at(iVar) == "mass") genHistos[iPart][iVar]->Fill(part->mass()); 
@@ -276,14 +358,51 @@ int main(int argc, char** argv)
                            if(genVar_.at(iVar) == "phi") genHistos[iPart][iVar]->Fill(part->phi());  
                        } 
                    }
+
+                   //fill genParticles sum
+                   for(unsigned int iSum = 0; iSum<sumParticles_.size(); iSum++)
+                   {                    
+                       for(unsigned int iPos = 0; iPos<position_.at(iSum).size(); iPos++)
+                       {
+                            int pos = position_.at(iSum).at(iPos);
+                            if(part->pdgId() == pdgId_[pos] && part->status() == status_[pos] && part->mother()->pdgId() == mother_[pos])
+                            {
+                               p4_tmp[iSum].SetPtEtaPhiE(part->pt(),part->eta(),part->phi(),part->energy());
+                               sum_p4.at(iSum) = sum_p4.at(iSum)+p4_tmp.at(iSum);   
+                            }  
+                       } 
+                   }
+               }
+
+               for(unsigned int iSum = 0; iSum<sumParticles_.size(); iSum++)
+               { 
+                   if(sum_p4[iSum].Eta() == 0.) continue;
+
+                   for(unsigned int iVar=0; iVar<genVariables_.size(); iVar++)
+                   { 
+                       if(genVar_.at(iVar) == "mass") sumHistos[iSum][iVar]->Fill(sum_p4[iSum].M()); 
+                       if(genVar_.at(iVar) == "mt") sumHistos[iSum][iVar]->Fill(sum_p4[iSum].Mt());  
+                       if(genVar_.at(iVar) == "energy") sumHistos[iSum][iVar]->Fill(sum_p4[iSum].Energy());  
+                       if(genVar_.at(iVar) == "et") sumHistos[iSum][iVar]->Fill(sum_p4[iSum].Et());
+                       if(genVar_.at(iVar) == "et2") sumHistos[iSum][iVar]->Fill(sum_p4[iSum].Et2());  
+                       if(genVar_.at(iVar) == "p") sumHistos[iSum][iVar]->Fill(sum_p4[iSum].P());  
+                       if(genVar_.at(iVar) == "px") sumHistos[iSum][iVar]->Fill(sum_p4[iSum].Px()); 
+                       if(genVar_.at(iVar) == "py") sumHistos[iSum][iVar]->Fill(sum_p4[iSum].Py()); 
+                       if(genVar_.at(iVar) == "pz") sumHistos[iSum][iVar]->Fill(sum_p4[iSum].Pz());  
+                       if(genVar_.at(iVar) == "pt") sumHistos[iSum][iVar]->Fill(sum_p4[iSum].Pt());
+                       if(genVar_.at(iVar) == "y") sumHistos[iSum][iVar]->Fill(sum_p4[iSum].Y()); 
+                       if(genVar_.at(iVar) == "eta") sumHistos[iSum][iVar]->Fill(sum_p4[iSum].Eta());
+                       if(genVar_.at(iVar) == "phi") sumHistos[iSum][iVar]->Fill(sum_p4[iSum].Phi());  
+                   }
+                   sum_p4[iSum].SetPxPyPzE(0.,0.,0.,0.);
+               }
                
                for(unsigned int iJet = 0; iJet<jetTypes_.size(); iJet++)
                {
-                   // Handle to the GenParticle collection
+                   // Handle to the GenJets collection
 	           edm::Handle< vector<reco::GenJet> > genJets;
 	           event.getByLabel(jetTypes_.at(iJet), genJets);
-                   
-                   if(ievt%1000==0) cout << "--- Reading " << jetTypes_.at(iJet) << " ---" << endl;
+                 
                    for(vector<reco::GenJet>::const_iterator jet=genJets->begin(); jet!=genJets->end(); ++jet)    
                    {
                        for(unsigned int iVar=0; iVar<jetVariables_.size(); iVar++)
@@ -317,7 +436,6 @@ int main(int argc, char** argv)
                    const reco::GenMETCollection *genmetcol = genMet.product();
                    const reco::GenMET  *genMetCalo = &(genmetcol->front());
 
-                   if(ievt%1000==0) cout << "--- Reading " << metTypes_.at(iMet) << " ---" << endl;
                    for(unsigned int iVar=0; iVar<metVariables_.size(); iVar++)
                    {
                        if(metVar_.at(iVar) == "et") metHistos[iMet][iVar]->Fill(genMetCalo->et());
@@ -337,8 +455,9 @@ int main(int argc, char** argv)
                        if(metVar_.at(iVar) == "InvisibleEt") metHistos[iMet][iVar]->Fill(genMetCalo->InvisibleEt()); 
                    } 
                }
-	   }   
+	   }
 
+           cout << "--- Read events = " << ievt << endl;   
         }
     }
 
@@ -346,18 +465,32 @@ int main(int argc, char** argv)
     for(unsigned int iPart = 0; iPart<genParticles_.size(); iPart++)
         for(unsigned int iVar = 0; iVar<genVariables_.size(); iVar++)
         {
+            if(genHistos[iPart][iVar]->Integral() == 0) cout << "\nWARNING: "<< genHistos[iPart][iVar]->GetName() << " no entries within the range --> Skipped\n" << endl;
+            if(genHistos[iPart][iVar]->Integral() == 0) continue;
             genHistos[iPart][iVar]->Write();
             drawHisto(genHistos[iPart][iVar]);
+        }
+    for(unsigned int iSum = 0; iSum<sumParticles_.size(); iSum++)
+        for(unsigned int iVar = 0; iVar<genVariables_.size(); iVar++)
+        {
+            if(sumHistos[iSum][iVar]->Integral() == 0) cout << "\nWARNING: "<< sumHistos[iSum][iVar]->GetName() << " no entries within the range --> Skipped\n" << endl;
+            if(sumHistos[iSum][iVar]->Integral() == 0) continue;
+            sumHistos[iSum][iVar]->Write();
+            drawHisto(sumHistos[iSum][iVar]);
         }
     for(unsigned int iJet = 0; iJet<jetTypes_.size(); iJet++)
         for(unsigned int iVar = 0; iVar<jetVariables_.size(); iVar++)
         {
+            if(jetHistos[iJet][iVar]->Integral() == 0) cout << "\nWARNING: "<< jetHistos[iJet][iVar]->GetName() << " no entries within the range --> Skipped\n" << endl;
+            if(jetHistos[iJet][iVar]->Integral() == 0) continue;
             jetHistos[iJet][iVar]->Write();
             drawHisto(jetHistos[iJet][iVar]);
         }
     for(unsigned int iMet = 0; iMet<metTypes_.size(); iMet++)
         for(unsigned int iVar = 0; iVar<metVariables_.size(); iVar++)
         {
+            if(metHistos[iMet][iVar]->Integral() == 0) cout << "\nWARNING: "<< metHistos[iMet][iVar]->GetName() << " no entries within the range --> Skipped\n" << endl;
+            if(metHistos[iMet][iVar]->Integral() == 0) continue;
             metHistos[iMet][iVar]->Write();
             if(string(metHistos[iMet][iVar]->GetName()).find("Fraction") !=std::string::npos) drawHisto(metHistos[iMet][iVar],"");
             else drawHisto(metHistos[iMet][iVar]);
