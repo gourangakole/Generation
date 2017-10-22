@@ -38,6 +38,9 @@
 #include "DataFormats/METReco/interface/GenMETCollection.h"
 #include "DataFormats/METReco/interface/GenMET.h"
 
+#include "DataFormats/Math/interface/deltaR.h"
+#include "DataFormats/Math/interface/deltaPhi.h"
+
 #include "FPCanvasStyle.C"
 #include "setStyle.C"
 
@@ -144,7 +147,7 @@ void setVariables(vector<string>& genVariables_, vector<string>& var, vector<int
      }
 }
 
-void drawHisto(TH1F* h, string unit = "GeV", string outputDir = "output")
+void drawHisto(TH1F* h, string outputDir = "output", string unit = "GeV")
 {
      h->SetLineColor(kBlack);
      h->SetLineWidth(2);
@@ -157,7 +160,8 @@ void drawHisto(TH1F* h, string unit = "GeV", string outputDir = "output")
      float xmax = h->GetBinCenter(nbins)+h->GetBinWidth(nbins)/2;
      float ymax = 1.1*h->GetBinContent(h->GetMaximumBin());
      TH2F* H2 = new TH2F("H2","",nbins,xmin,xmax,1000,0.,ymax);
-     H2->GetXaxis()->SetTitle((string(h->GetName())+" ("+unit+")").c_str());
+     if(string(h->GetName()).find("eta")!=std::string::npos || string(h->GetName()).find("phi")!=std::string::npos || string(h->GetName()).find("delta")!=std::string::npos || string(h->GetName()).find("Fraction")!=std::string::npos) H2->GetXaxis()->SetTitle((string(h->GetName())).c_str());
+     else H2->GetXaxis()->SetTitle((string(h->GetName())+" ("+unit+")").c_str());
      H2->GetYaxis()->SetTitle("events");
      
      TCanvas* c1 = new TCanvas("c1","c1",1);
@@ -273,6 +277,25 @@ int main(int argc, char** argv)
         for(unsigned int iVar=0; iVar<genVariables_.size(); iVar++)
             genHistos.at(iPart).at(iVar) = new TH1F((name_.at(iPart)+"_"+genVar_.at(iVar)).c_str(),"",genNbins_.at(iVar),genMin_.at(iVar),genMax_.at(iVar));
 
+    //Set deltaEta, deltaPhi and deltaR histos
+    vector<TH1F*> dEtaHistos;
+    vector<TH1F*> dPhiHistos;
+    vector<TH1F*> dRHistos;
+    dEtaHistos.resize(TMath::Binomial(genParticles_.size(),2));
+    dPhiHistos.resize(TMath::Binomial(genParticles_.size(),2));
+    dRHistos.resize(TMath::Binomial(genParticles_.size(),2));
+   
+    int iPair=0;
+    for(unsigned int iPart1=0; iPart1<genParticles_.size()-1; iPart1++)
+        for(unsigned int iPart2=1; iPart2<genParticles_.size(); iPart2++)
+        {
+            if(iPart1 == iPart2) continue;
+            dEtaHistos.at(iPair) = new TH1F(("deltaEta_"+name_.at(iPart1)+"_"+name_.at(iPart2)).c_str(),"",genNbins_.at(4),genMin_.at(4),genMax_.at(4));
+            dPhiHistos.at(iPair) = new TH1F(("deltaPhi_"+name_.at(iPart1)+"_"+name_.at(iPart2)).c_str(),"",genNbins_.at(5),genMin_.at(5),genMax_.at(5));
+            dRHistos.at(iPair) = new TH1F(("deltaR_"+name_.at(iPart1)+"_"+name_.at(iPart2)).c_str(),"",genNbins_.at(5),0.,genMax_.at(4)+1.);
+            iPair++;
+        }
+
     //Set sumHistos
     vector< vector<TH1F*> > sumHistos;
     sumHistos.resize(sumParticles_.size());
@@ -310,12 +333,16 @@ int main(int argc, char** argv)
             jetHistos.at(iJet).at(iVar) = new TH1F((jetTypes_.at(iJet)+"_"+jetVar_.at(iVar)).c_str(),"",jetNbins_.at(iVar),jetMin_.at(iVar),jetMax_.at(iVar));
     
     vector<TLorentzVector> p4_tmp;
-    p4_tmp.resize(sumParticles_.size());
+    p4_tmp.resize(genParticles_.size());
+
+    vector<TLorentzVector> p4_tmp2;
+    p4_tmp2.resize(sumParticles_.size());
 
     vector<TLorentzVector> sum_p4;
     sum_p4.resize(sumParticles_.size());
 
     bool gotoMain = false;
+    iPair=0;
     for(unsigned int iFile=0; iFile<inputFiles_.size() && !gotoMain; ++iFile){
 
         TFile* inFile = TFile::Open(inputFiles_[iFile].c_str());
@@ -341,6 +368,7 @@ int main(int argc, char** argv)
                    for(unsigned int iPart = 0; iPart<genParticles_.size(); iPart++)
                    {
                        if(part->pdgId() != pdgId_[iPart] || part->status() != status_[iPart] || (mother_[iPart] != -999 && part->mother()->pdgId() != mother_[iPart])) continue;
+
                        for(unsigned int iVar=0; iVar<genVariables_.size(); iVar++)
                        {
                            if(genVar_.at(iVar) == "mass") genHistos[iPart][iVar]->Fill(part->mass()); 
@@ -357,7 +385,10 @@ int main(int argc, char** argv)
                            if(genVar_.at(iVar) == "eta") genHistos[iPart][iVar]->Fill(part->eta());
                            if(genVar_.at(iVar) == "phi") genHistos[iPart][iVar]->Fill(part->phi());  
                        } 
+
+                       p4_tmp[iPart].SetPtEtaPhiE(part->pt(),part->eta(),part->phi(),part->energy());
                    }
+
 
                    //fill genParticles sum
                    for(unsigned int iSum = 0; iSum<sumParticles_.size(); iSum++)
@@ -367,12 +398,26 @@ int main(int argc, char** argv)
                             int pos = position_.at(iSum).at(iPos);
                             if(part->pdgId() == pdgId_[pos] && part->status() == status_[pos] && part->mother()->pdgId() == mother_[pos])
                             {
-                               p4_tmp[iSum].SetPtEtaPhiE(part->pt(),part->eta(),part->phi(),part->energy());
-                               sum_p4.at(iSum) = sum_p4.at(iSum)+p4_tmp.at(iSum);   
+                               p4_tmp2[iSum].SetPtEtaPhiE(part->pt(),part->eta(),part->phi(),part->energy());
+                               sum_p4.at(iSum) = sum_p4.at(iSum)+p4_tmp2.at(iSum);   
                             }  
                        } 
                    }
                }
+               iPair=0;
+               //compute deltaEta, deltaPhi and deltaR
+               for(unsigned int ii=0; ii<p4_tmp.size()-1; ii++)
+                   for(unsigned int jj=1; jj<p4_tmp.size(); jj++)
+                   {
+                       if(ii==jj) continue;
+                       float dPhi = deltaPhi(p4_tmp.at(ii).Phi(),p4_tmp.at(jj).Phi());
+                       float dEta = p4_tmp.at(ii).Eta()-p4_tmp.at(jj).Eta();
+                       float dR = deltaR(p4_tmp.at(ii).Eta(),p4_tmp.at(ii).Phi(),p4_tmp.at(jj).Eta(),p4_tmp.at(jj).Phi());
+                       dPhiHistos[iPair]->Fill(dPhi); 
+                       dEtaHistos[iPair]->Fill(dEta); 
+                       dRHistos[iPair]->Fill(dR); 
+                       iPair++;
+                   }
 
                for(unsigned int iSum = 0; iSum<sumParticles_.size(); iSum++)
                { 
@@ -461,6 +506,7 @@ int main(int argc, char** argv)
         }
     }
 
+    iPair=0;
     outFile->cd();
     for(unsigned int iPart = 0; iPart<genParticles_.size(); iPart++)
         for(unsigned int iVar = 0; iVar<genVariables_.size(); iVar++)
@@ -468,7 +514,31 @@ int main(int argc, char** argv)
             if(genHistos[iPart][iVar]->Integral() == 0) cout << "\nWARNING: "<< genHistos[iPart][iVar]->GetName() << " no entries within the range --> Skipped\n" << endl;
             if(genHistos[iPart][iVar]->Integral() == 0) continue;
             genHistos[iPart][iVar]->Write();
-            drawHisto(genHistos[iPart][iVar]);
+            drawHisto(genHistos[iPart][iVar],outputDir_);
+        }
+    for(unsigned int iPart1 = 0; iPart1<genParticles_.size()-1; iPart1++)
+        for(unsigned int iPart2 = 1; iPart2<genParticles_.size(); iPart2++)
+        {
+            if(iPart1 == iPart2) continue;
+            if(dEtaHistos[iPair]->Integral() == 0) cout << "\nWARNING: "<< dEtaHistos[iPair]->GetName() << " no entries within the range --> Skipped\n" << endl;
+            else
+            {
+               dEtaHistos[iPair]->Write();
+               drawHisto(dEtaHistos[iPair],outputDir_);
+            }
+            if(dPhiHistos[iPair]->Integral() == 0) cout << "\nWARNING: "<< dPhiHistos[iPair]->GetName() << " no entries within the range --> Skipped\n" << endl;
+            else
+            {
+               dPhiHistos[iPair]->Write();
+               drawHisto(dPhiHistos[iPair],outputDir_);
+            }
+            if(dRHistos[iPair]->Integral() == 0) cout << "\nWARNING: "<< dRHistos[iPair]->GetName() << " no entries within the range --> Skipped\n" << endl;
+            else
+            {
+               dRHistos[iPair]->Write();
+               drawHisto(dRHistos[iPair],outputDir_);
+            }
+            iPair++;
         }
     for(unsigned int iSum = 0; iSum<sumParticles_.size(); iSum++)
         for(unsigned int iVar = 0; iVar<genVariables_.size(); iVar++)
@@ -476,7 +546,7 @@ int main(int argc, char** argv)
             if(sumHistos[iSum][iVar]->Integral() == 0) cout << "\nWARNING: "<< sumHistos[iSum][iVar]->GetName() << " no entries within the range --> Skipped\n" << endl;
             if(sumHistos[iSum][iVar]->Integral() == 0) continue;
             sumHistos[iSum][iVar]->Write();
-            drawHisto(sumHistos[iSum][iVar]);
+            drawHisto(sumHistos[iSum][iVar],outputDir_);
         }
     for(unsigned int iJet = 0; iJet<jetTypes_.size(); iJet++)
         for(unsigned int iVar = 0; iVar<jetVariables_.size(); iVar++)
@@ -484,7 +554,7 @@ int main(int argc, char** argv)
             if(jetHistos[iJet][iVar]->Integral() == 0) cout << "\nWARNING: "<< jetHistos[iJet][iVar]->GetName() << " no entries within the range --> Skipped\n" << endl;
             if(jetHistos[iJet][iVar]->Integral() == 0) continue;
             jetHistos[iJet][iVar]->Write();
-            drawHisto(jetHistos[iJet][iVar]);
+            drawHisto(jetHistos[iJet][iVar],outputDir_);
         }
     for(unsigned int iMet = 0; iMet<metTypes_.size(); iMet++)
         for(unsigned int iVar = 0; iVar<metVariables_.size(); iVar++)
@@ -492,8 +562,7 @@ int main(int argc, char** argv)
             if(metHistos[iMet][iVar]->Integral() == 0) cout << "\nWARNING: "<< metHistos[iMet][iVar]->GetName() << " no entries within the range --> Skipped\n" << endl;
             if(metHistos[iMet][iVar]->Integral() == 0) continue;
             metHistos[iMet][iVar]->Write();
-            if(string(metHistos[iMet][iVar]->GetName()).find("Fraction") !=std::string::npos) drawHisto(metHistos[iMet][iVar],"");
-            else drawHisto(metHistos[iMet][iVar]);
+            drawHisto(metHistos[iMet][iVar],outputDir_);
         }
     outFile->Close();
 }

@@ -34,7 +34,7 @@ process.genParticlesOpt = cms.PSet(
         'p 100 0. 600.',
         'mass 100 0 200',
         'pt 100 0. 300.',
-        'eta 100 -6. 6.',
+        'eta 100 -7. 7.',
         'phi 100 -3.5 3.5',
         'mt 100 0. 300.',
         'et 100 0. 300', 
