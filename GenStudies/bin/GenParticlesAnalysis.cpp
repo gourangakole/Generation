@@ -371,8 +371,7 @@ int main(int argc, char** argv)
                edm::EventBase const & event = ev;
 	       if(ievt>maxEvents_-2 && maxEvents_ != -1) gotoMain = true;
 
-               //if(ievt%1000==0) cout << "--- Reading entry = " << ievt+1 << endl;
-               cout << "--- Reading entry = " << ievt+1 << endl;
+               if(ievt%1000==0) cout << "--- Reading entry = " << ievt+1 << endl;
                
                // Handle to the GenParticle collection
 	       edm::Handle< vector<reco::GenParticle> > genParticles;
@@ -382,7 +381,6 @@ int main(int argc, char** argv)
                {    
                    for(unsigned int iPart = 0; iPart<genParticles_.size(); iPart++)
                    {
-                       if(part->pdgId() == pdgId_[iPart]) cout << part->pdgId() << " " << part->status() << " " << part->mother()->pdgId() << std::endl;  
                        if(part->pdgId() != pdgId_[iPart] || part->status() != status_[iPart] || (mother_[iPart] != -999 && part->mother()->pdgId() != mother_[iPart])) continue;
 
                        for(unsigned int iVar=0; iVar<genVariables_.size(); iVar++)
