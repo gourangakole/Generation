@@ -147,6 +147,17 @@ void setVariables(vector<string>& genVariables_, vector<string>& var, vector<int
      }
 }
 
+float computeMt(TLorentzVector p1, TLorentzVector p2)
+{
+     float m1 = p1.M();
+     float m2 = p2.M();
+     float Et1 = sqrt(m1*m1 + p1.Px()*p1.Px() + p1.Py()*p1.Py());
+     float Et2 = sqrt(m2*m2 + p2.Px()*p2.Px() + p2.Py()*p2.Py());
+     float pt2 = p1.Px()*p2.Px() + p1.Py()*p2.Py();
+     float Mt = sqrt(m1*m1 + m2*m2 + 2*(Et1*Et2 - pt2));
+     return Mt;
+}
+
 void drawHisto(TH1F* h, string outputDir = "output", string unit = "GeV")
 {
      h->SetLineColor(kBlack);
@@ -277,13 +288,15 @@ int main(int argc, char** argv)
         for(unsigned int iVar=0; iVar<genVariables_.size(); iVar++)
             genHistos.at(iPart).at(iVar) = new TH1F((name_.at(iPart)+"_"+genVar_.at(iVar)).c_str(),"",genNbins_.at(iVar),genMin_.at(iVar),genMax_.at(iVar));
 
-    //Set deltaEta, deltaPhi and deltaR histos
+    //Set deltaEta, deltaPhi, deltaR and Mt histos
     vector<TH1F*> dEtaHistos;
     vector<TH1F*> dPhiHistos;
     vector<TH1F*> dRHistos;
+    vector<TH1F*> MtHistos;
     dEtaHistos.resize(TMath::Binomial(genParticles_.size(),2));
     dPhiHistos.resize(TMath::Binomial(genParticles_.size(),2));
     dRHistos.resize(TMath::Binomial(genParticles_.size(),2));
+    MtHistos.resize(TMath::Binomial(genParticles_.size(),2));
    
     int iPair=0;
     for(unsigned int iPart1=0; iPart1<genParticles_.size()-1; iPart1++)
@@ -293,6 +306,7 @@ int main(int argc, char** argv)
             dEtaHistos.at(iPair) = new TH1F(("deltaEta_"+name_.at(iPart1)+"_"+name_.at(iPart2)).c_str(),"",genNbins_.at(4),genMin_.at(4),genMax_.at(4));
             dPhiHistos.at(iPair) = new TH1F(("deltaPhi_"+name_.at(iPart1)+"_"+name_.at(iPart2)).c_str(),"",genNbins_.at(5),genMin_.at(5),genMax_.at(5));
             dRHistos.at(iPair) = new TH1F(("deltaR_"+name_.at(iPart1)+"_"+name_.at(iPart2)).c_str(),"",genNbins_.at(5),0.,genMax_.at(4)+1.);
+            MtHistos.at(iPair) = new TH1F(("Mt_"+name_.at(iPart1)+"_"+name_.at(iPart2)).c_str(),"",genNbins_.at(6),0.,genMax_.at(6)+1.);
             iPair++;
         }
 
@@ -357,7 +371,8 @@ int main(int argc, char** argv)
                edm::EventBase const & event = ev;
 	       if(ievt>maxEvents_-2 && maxEvents_ != -1) gotoMain = true;
 
-               if(ievt%1000==0) cout << "--- Reading entry = " << ievt+1 << endl;
+               //if(ievt%1000==0) cout << "--- Reading entry = " << ievt+1 << endl;
+               cout << "--- Reading entry = " << ievt+1 << endl;
                
                // Handle to the GenParticle collection
 	       edm::Handle< vector<reco::GenParticle> > genParticles;
@@ -367,12 +382,13 @@ int main(int argc, char** argv)
                {    
                    for(unsigned int iPart = 0; iPart<genParticles_.size(); iPart++)
                    {
+                       if(part->pdgId() == pdgId_[iPart]) cout << part->pdgId() << " " << part->status() << " " << part->mother()->pdgId() << std::endl;  
                        if(part->pdgId() != pdgId_[iPart] || part->status() != status_[iPart] || (mother_[iPart] != -999 && part->mother()->pdgId() != mother_[iPart])) continue;
 
                        for(unsigned int iVar=0; iVar<genVariables_.size(); iVar++)
                        {
                            if(genVar_.at(iVar) == "mass") genHistos[iPart][iVar]->Fill(part->mass()); 
-                           if(genVar_.at(iVar) == "mt") genHistos[iPart][iVar]->Fill(part->mt());  
+                           if(genVar_.at(iVar) == "mt") genHistos[iPart][iVar]->Fill(part->mt());    
                            if(genVar_.at(iVar) == "energy") genHistos[iPart][iVar]->Fill(part->energy());  
                            if(genVar_.at(iVar) == "et") genHistos[iPart][iVar]->Fill(part->et());
                            if(genVar_.at(iVar) == "et2") genHistos[iPart][iVar]->Fill(part->et2());  
@@ -405,7 +421,7 @@ int main(int argc, char** argv)
                    }
                }
                iPair=0;
-               //compute deltaEta, deltaPhi and deltaR
+               //compute deltaEta, deltaPhi, deltaR and Mt
                for(unsigned int ii=0; ii<p4_tmp.size()-1; ii++)
                    for(unsigned int jj=1; jj<p4_tmp.size(); jj++)
                    {
@@ -413,9 +429,11 @@ int main(int argc, char** argv)
                        float dPhi = deltaPhi(p4_tmp.at(ii).Phi(),p4_tmp.at(jj).Phi());
                        float dEta = p4_tmp.at(ii).Eta()-p4_tmp.at(jj).Eta();
                        float dR = deltaR(p4_tmp.at(ii).Eta(),p4_tmp.at(ii).Phi(),p4_tmp.at(jj).Eta(),p4_tmp.at(jj).Phi());
+                       float Mt = computeMt(p4_tmp.at(ii),p4_tmp.at(jj));
                        dPhiHistos[iPair]->Fill(dPhi); 
                        dEtaHistos[iPair]->Fill(dEta); 
                        dRHistos[iPair]->Fill(dR); 
+                       MtHistos[iPair]->Fill(Mt); 
                        iPair++;
                    }
 
@@ -537,6 +555,12 @@ int main(int argc, char** argv)
             {
                dRHistos[iPair]->Write();
                drawHisto(dRHistos[iPair],outputDir_);
+            }
+            if(MtHistos[iPair]->Integral() == 0) cout << "\nWARNING: "<< MtHistos[iPair]->GetName() << " no entries within the range --> Skipped\n" << endl;
+            else
+            {
+               MtHistos[iPair]->Write();
+               drawHisto(MtHistos[iPair],outputDir_);
             }
             iPair++;
         }
