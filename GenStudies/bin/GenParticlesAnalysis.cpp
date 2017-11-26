@@ -195,6 +195,17 @@ void drawHisto(TH1F* h, string outputDir = "output", string unit = "GeV")
      delete H2;
 }
 
+vector<string> split(const string &text, char sep) {
+  vector<string> tokens;
+  size_t start = 0, end = 0;
+  while ((end = text.find(sep, start)) != string::npos) {
+    tokens.push_back(text.substr(start, end - start));
+    start = end + 1;
+  }
+  tokens.push_back(text.substr(start));
+  return tokens;
+}
+
 int main(int argc, char** argv)
 {
 
@@ -218,7 +229,8 @@ int main(int argc, char** argv)
     const edm::ParameterSet &genMETOpt       = process.getParameter<edm::ParameterSet>( "genMETOpt" );
 
    //Read config
-    vector<string> inputFiles_ = filesOpt.getParameter< vector<string> >( "inputFiles" );
+    string inputFiles_ = filesOpt.getParameter<string>( "inputFiles" );
+    vector<string> inputFiles = split(inputFiles_,',');
 
     string outputDir_ = filesOpt.getParameter<string>( "outputDir" );
     if( outputDir_ == "" ) outputDir_ = "output/"; 
@@ -357,12 +369,12 @@ int main(int argc, char** argv)
 
     bool gotoMain = false;
     iPair=0;
-    for(unsigned int iFile=0; iFile<inputFiles_.size() && !gotoMain; ++iFile){
+    for(unsigned int iFile=0; iFile<inputFiles.size() && !gotoMain; ++iFile){
 
-        TFile* inFile = TFile::Open(inputFiles_[iFile].c_str());
+        TFile* inFile = TFile::Open(inputFiles[iFile].c_str());
         if(inFile){
             
-           cout << "\n--- Reading file: " << inputFiles_[iFile].c_str() << endl;
+           cout << "\n--- Reading file: " << inputFiles[iFile].c_str() << endl;
            fwlite::Event ev(inFile);   
               
            cout << "\n--- Reading entries ---" << endl;
