@@ -203,12 +203,12 @@
       ```
       ...
 
-5) Publish samples:
+4) Publish samples:
 
     * Mody accordingly and submit on crab3: crab_cfg_publish.py
 
       
-4) Run GEN analysis:
+5) Run GEN analysis:
 
     * cd Generation/GenStudies
     * GenParticlesAnalysis python/GenParticlesAnalysis_cfg.py
