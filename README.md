@@ -34,11 +34,11 @@
       
     * NOTE: Any new GEN-SIM step cfg can be adapted in order to work with this package. Change/add the following lines:
     
-      ...
-      process.maxEvents = cms.untracked.PSet(
-         input = cms.untracked.int32(EVENTSperJOB)
-      )
-      ...
+      >...
+      >process.maxEvents = cms.untracked.PSet(
+      >   input = cms.untracked.int32(EVENTSperJOB)
+      >)
+      >...
       
       
 3)
