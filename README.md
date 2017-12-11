@@ -41,6 +41,33 @@
       )
       ```
       ...
+      ```Pythonscript
+      
+import SimGeneral.Configuration.ThrowAndSetRandomRun as ThrowAndSetRandomRun
+ThrowAndSetRandomRun.throwAndSetRandomRun(process.source,[(JOBID,1)])
+
+process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
+
+    externalLHEProducer = cms.PSet(
+       initialSeed = cms.untracked.uint32(SEED1),
+       engineName = cms.untracked.string('HepJamesRandom')
+    ),
+    generator = cms.PSet(
+       initialSeed = cms.untracked.uint32(SEED2),
+       engineName = cms.untracked.string('HepJamesRandom')
+    ),
+    VtxSmeared = cms.PSet(
+       initialSeed = cms.untracked.uint32(SEED3),
+       engineName = cms.untracked.string('HepJamesRandom')
+    ),
+    g4SimHits = cms.PSet(
+       initialSeed = cms.untracked.uint32(SEED4),
+       engineName = cms.untracked.string('HepJamesRandom')
+    )
+
+)
+      ```
+      ...
       
       
 3)
