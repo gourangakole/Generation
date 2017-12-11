@@ -1,0 +1,142 @@
+# CRAB3 config template for flashgg
+# More options available on the twiki :
+# https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookCRAB3Tutorial
+
+from WMCore.Configuration import Configuration
+
+config = Configuration()
+
+config.section_('General')
+config.General.requestName     = 'GluGluHToGX_M_125_TuneCUEP8M1_13TeV_pythia8_RunIIFall17'
+config.General.transferLogs    = True
+config.General.transferOutputs = True
+
+config.section_('JobType')
+config.JobType.pluginName      = 'Analysis'
+
+# Name of the CMSSW configuration file
+config.JobType.psetName        = 'publish_dummy.py'
+#config.JobType.priority        = 20
+
+config.section_('Data')
+# This string determines the primary dataset of the newly-produced outputs.
+config.Data.outputPrimaryDataset = 'GluGluHToGX_M_125_TuneCUEP8M1_13TeV_pythia8_RunIIFall17_94X_mc2017_realistic_v10'
+config.Data.publishDBS         = 'phys03'
+config.Data.splitting          = 'FileBased'
+config.Data.unitsPerJob        = 1
+#config.Data.totalUnits        = -1
+config.Data.publication        = True
+config.Data.ignoreLocality     = True
+
+config.Data.userInputFiles     = ['/store/user/bmarzocc/GluGluHToGX_RunIIFall17/MiniAODSIM/GluGluHToGX_M_125_TuneCUEP8M1_13TeV_pythia8_RunIIFall17_MiniAODSIM_1.root',
+'/store/user/bmarzocc/GluGluHToGX_RunIIFall17/MiniAODSIM/GluGluHToGX_M_125_TuneCUEP8M1_13TeV_pythia8_RunIIFall17_MiniAODSIM_10.root',
+'/store/user/bmarzocc/GluGluHToGX_RunIIFall17/MiniAODSIM/GluGluHToGX_M_125_TuneCUEP8M1_13TeV_pythia8_RunIIFall17_MiniAODSIM_100.root',
+'/store/user/bmarzocc/GluGluHToGX_RunIIFall17/MiniAODSIM/GluGluHToGX_M_125_TuneCUEP8M1_13TeV_pythia8_RunIIFall17_MiniAODSIM_11.root',
+'/store/user/bmarzocc/GluGluHToGX_RunIIFall17/MiniAODSIM/GluGluHToGX_M_125_TuneCUEP8M1_13TeV_pythia8_RunIIFall17_MiniAODSIM_12.root',
+'/store/user/bmarzocc/GluGluHToGX_RunIIFall17/MiniAODSIM/GluGluHToGX_M_125_TuneCUEP8M1_13TeV_pythia8_RunIIFall17_MiniAODSIM_13.root',
+'/store/user/bmarzocc/GluGluHToGX_RunIIFall17/MiniAODSIM/GluGluHToGX_M_125_TuneCUEP8M1_13TeV_pythia8_RunIIFall17_MiniAODSIM_14.root',
+'/store/user/bmarzocc/GluGluHToGX_RunIIFall17/MiniAODSIM/GluGluHToGX_M_125_TuneCUEP8M1_13TeV_pythia8_RunIIFall17_MiniAODSIM_15.root',
+'/store/user/bmarzocc/GluGluHToGX_RunIIFall17/MiniAODSIM/GluGluHToGX_M_125_TuneCUEP8M1_13TeV_pythia8_RunIIFall17_MiniAODSIM_16.root',
+'/store/user/bmarzocc/GluGluHToGX_RunIIFall17/MiniAODSIM/GluGluHToGX_M_125_TuneCUEP8M1_13TeV_pythia8_RunIIFall17_MiniAODSIM_17.root',
+'/store/user/bmarzocc/GluGluHToGX_RunIIFall17/MiniAODSIM/GluGluHToGX_M_125_TuneCUEP8M1_13TeV_pythia8_RunIIFall17_MiniAODSIM_18.root',
+'/store/user/bmarzocc/GluGluHToGX_RunIIFall17/MiniAODSIM/GluGluHToGX_M_125_TuneCUEP8M1_13TeV_pythia8_RunIIFall17_MiniAODSIM_19.root',
+'/store/user/bmarzocc/GluGluHToGX_RunIIFall17/MiniAODSIM/GluGluHToGX_M_125_TuneCUEP8M1_13TeV_pythia8_RunIIFall17_MiniAODSIM_2.root',
+'/store/user/bmarzocc/GluGluHToGX_RunIIFall17/MiniAODSIM/GluGluHToGX_M_125_TuneCUEP8M1_13TeV_pythia8_RunIIFall17_MiniAODSIM_20.root',
+'/store/user/bmarzocc/GluGluHToGX_RunIIFall17/MiniAODSIM/GluGluHToGX_M_125_TuneCUEP8M1_13TeV_pythia8_RunIIFall17_MiniAODSIM_21.root',
+'/store/user/bmarzocc/GluGluHToGX_RunIIFall17/MiniAODSIM/GluGluHToGX_M_125_TuneCUEP8M1_13TeV_pythia8_RunIIFall17_MiniAODSIM_22.root',
+'/store/user/bmarzocc/GluGluHToGX_RunIIFall17/MiniAODSIM/GluGluHToGX_M_125_TuneCUEP8M1_13TeV_pythia8_RunIIFall17_MiniAODSIM_23.root',
+'/store/user/bmarzocc/GluGluHToGX_RunIIFall17/MiniAODSIM/GluGluHToGX_M_125_TuneCUEP8M1_13TeV_pythia8_RunIIFall17_MiniAODSIM_24.root',
+'/store/user/bmarzocc/GluGluHToGX_RunIIFall17/MiniAODSIM/GluGluHToGX_M_125_TuneCUEP8M1_13TeV_pythia8_RunIIFall17_MiniAODSIM_25.root',
+'/store/user/bmarzocc/GluGluHToGX_RunIIFall17/MiniAODSIM/GluGluHToGX_M_125_TuneCUEP8M1_13TeV_pythia8_RunIIFall17_MiniAODSIM_26.root',
+'/store/user/bmarzocc/GluGluHToGX_RunIIFall17/MiniAODSIM/GluGluHToGX_M_125_TuneCUEP8M1_13TeV_pythia8_RunIIFall17_MiniAODSIM_27.root',
+'/store/user/bmarzocc/GluGluHToGX_RunIIFall17/MiniAODSIM/GluGluHToGX_M_125_TuneCUEP8M1_13TeV_pythia8_RunIIFall17_MiniAODSIM_28.root',
+'/store/user/bmarzocc/GluGluHToGX_RunIIFall17/MiniAODSIM/GluGluHToGX_M_125_TuneCUEP8M1_13TeV_pythia8_RunIIFall17_MiniAODSIM_29.root',
+'/store/user/bmarzocc/GluGluHToGX_RunIIFall17/MiniAODSIM/GluGluHToGX_M_125_TuneCUEP8M1_13TeV_pythia8_RunIIFall17_MiniAODSIM_3.root',
+'/store/user/bmarzocc/GluGluHToGX_RunIIFall17/MiniAODSIM/GluGluHToGX_M_125_TuneCUEP8M1_13TeV_pythia8_RunIIFall17_MiniAODSIM_30.root',
+'/store/user/bmarzocc/GluGluHToGX_RunIIFall17/MiniAODSIM/GluGluHToGX_M_125_TuneCUEP8M1_13TeV_pythia8_RunIIFall17_MiniAODSIM_31.root',
+'/store/user/bmarzocc/GluGluHToGX_RunIIFall17/MiniAODSIM/GluGluHToGX_M_125_TuneCUEP8M1_13TeV_pythia8_RunIIFall17_MiniAODSIM_32.root',
+'/store/user/bmarzocc/GluGluHToGX_RunIIFall17/MiniAODSIM/GluGluHToGX_M_125_TuneCUEP8M1_13TeV_pythia8_RunIIFall17_MiniAODSIM_33.root',
+'/store/user/bmarzocc/GluGluHToGX_RunIIFall17/MiniAODSIM/GluGluHToGX_M_125_TuneCUEP8M1_13TeV_pythia8_RunIIFall17_MiniAODSIM_34.root',
+'/store/user/bmarzocc/GluGluHToGX_RunIIFall17/MiniAODSIM/GluGluHToGX_M_125_TuneCUEP8M1_13TeV_pythia8_RunIIFall17_MiniAODSIM_35.root',
+'/store/user/bmarzocc/GluGluHToGX_RunIIFall17/MiniAODSIM/GluGluHToGX_M_125_TuneCUEP8M1_13TeV_pythia8_RunIIFall17_MiniAODSIM_36.root',
+'/store/user/bmarzocc/GluGluHToGX_RunIIFall17/MiniAODSIM/GluGluHToGX_M_125_TuneCUEP8M1_13TeV_pythia8_RunIIFall17_MiniAODSIM_37.root',
+'/store/user/bmarzocc/GluGluHToGX_RunIIFall17/MiniAODSIM/GluGluHToGX_M_125_TuneCUEP8M1_13TeV_pythia8_RunIIFall17_MiniAODSIM_38.root',
+'/store/user/bmarzocc/GluGluHToGX_RunIIFall17/MiniAODSIM/GluGluHToGX_M_125_TuneCUEP8M1_13TeV_pythia8_RunIIFall17_MiniAODSIM_39.root',
+'/store/user/bmarzocc/GluGluHToGX_RunIIFall17/MiniAODSIM/GluGluHToGX_M_125_TuneCUEP8M1_13TeV_pythia8_RunIIFall17_MiniAODSIM_4.root',
+'/store/user/bmarzocc/GluGluHToGX_RunIIFall17/MiniAODSIM/GluGluHToGX_M_125_TuneCUEP8M1_13TeV_pythia8_RunIIFall17_MiniAODSIM_40.root',
+'/store/user/bmarzocc/GluGluHToGX_RunIIFall17/MiniAODSIM/GluGluHToGX_M_125_TuneCUEP8M1_13TeV_pythia8_RunIIFall17_MiniAODSIM_41.root',
+'/store/user/bmarzocc/GluGluHToGX_RunIIFall17/MiniAODSIM/GluGluHToGX_M_125_TuneCUEP8M1_13TeV_pythia8_RunIIFall17_MiniAODSIM_42.root',
+'/store/user/bmarzocc/GluGluHToGX_RunIIFall17/MiniAODSIM/GluGluHToGX_M_125_TuneCUEP8M1_13TeV_pythia8_RunIIFall17_MiniAODSIM_43.root',
+'/store/user/bmarzocc/GluGluHToGX_RunIIFall17/MiniAODSIM/GluGluHToGX_M_125_TuneCUEP8M1_13TeV_pythia8_RunIIFall17_MiniAODSIM_44.root',
+'/store/user/bmarzocc/GluGluHToGX_RunIIFall17/MiniAODSIM/GluGluHToGX_M_125_TuneCUEP8M1_13TeV_pythia8_RunIIFall17_MiniAODSIM_45.root',
+'/store/user/bmarzocc/GluGluHToGX_RunIIFall17/MiniAODSIM/GluGluHToGX_M_125_TuneCUEP8M1_13TeV_pythia8_RunIIFall17_MiniAODSIM_46.root',
+'/store/user/bmarzocc/GluGluHToGX_RunIIFall17/MiniAODSIM/GluGluHToGX_M_125_TuneCUEP8M1_13TeV_pythia8_RunIIFall17_MiniAODSIM_47.root',
+'/store/user/bmarzocc/GluGluHToGX_RunIIFall17/MiniAODSIM/GluGluHToGX_M_125_TuneCUEP8M1_13TeV_pythia8_RunIIFall17_MiniAODSIM_48.root',
+'/store/user/bmarzocc/GluGluHToGX_RunIIFall17/MiniAODSIM/GluGluHToGX_M_125_TuneCUEP8M1_13TeV_pythia8_RunIIFall17_MiniAODSIM_49.root',
+'/store/user/bmarzocc/GluGluHToGX_RunIIFall17/MiniAODSIM/GluGluHToGX_M_125_TuneCUEP8M1_13TeV_pythia8_RunIIFall17_MiniAODSIM_5.root',
+'/store/user/bmarzocc/GluGluHToGX_RunIIFall17/MiniAODSIM/GluGluHToGX_M_125_TuneCUEP8M1_13TeV_pythia8_RunIIFall17_MiniAODSIM_50.root',
+'/store/user/bmarzocc/GluGluHToGX_RunIIFall17/MiniAODSIM/GluGluHToGX_M_125_TuneCUEP8M1_13TeV_pythia8_RunIIFall17_MiniAODSIM_51.root',
+'/store/user/bmarzocc/GluGluHToGX_RunIIFall17/MiniAODSIM/GluGluHToGX_M_125_TuneCUEP8M1_13TeV_pythia8_RunIIFall17_MiniAODSIM_52.root',
+'/store/user/bmarzocc/GluGluHToGX_RunIIFall17/MiniAODSIM/GluGluHToGX_M_125_TuneCUEP8M1_13TeV_pythia8_RunIIFall17_MiniAODSIM_53.root',
+'/store/user/bmarzocc/GluGluHToGX_RunIIFall17/MiniAODSIM/GluGluHToGX_M_125_TuneCUEP8M1_13TeV_pythia8_RunIIFall17_MiniAODSIM_54.root',
+'/store/user/bmarzocc/GluGluHToGX_RunIIFall17/MiniAODSIM/GluGluHToGX_M_125_TuneCUEP8M1_13TeV_pythia8_RunIIFall17_MiniAODSIM_55.root',
+'/store/user/bmarzocc/GluGluHToGX_RunIIFall17/MiniAODSIM/GluGluHToGX_M_125_TuneCUEP8M1_13TeV_pythia8_RunIIFall17_MiniAODSIM_56.root',
+'/store/user/bmarzocc/GluGluHToGX_RunIIFall17/MiniAODSIM/GluGluHToGX_M_125_TuneCUEP8M1_13TeV_pythia8_RunIIFall17_MiniAODSIM_57.root',
+'/store/user/bmarzocc/GluGluHToGX_RunIIFall17/MiniAODSIM/GluGluHToGX_M_125_TuneCUEP8M1_13TeV_pythia8_RunIIFall17_MiniAODSIM_58.root',
+'/store/user/bmarzocc/GluGluHToGX_RunIIFall17/MiniAODSIM/GluGluHToGX_M_125_TuneCUEP8M1_13TeV_pythia8_RunIIFall17_MiniAODSIM_59.root',
+'/store/user/bmarzocc/GluGluHToGX_RunIIFall17/MiniAODSIM/GluGluHToGX_M_125_TuneCUEP8M1_13TeV_pythia8_RunIIFall17_MiniAODSIM_6.root',
+'/store/user/bmarzocc/GluGluHToGX_RunIIFall17/MiniAODSIM/GluGluHToGX_M_125_TuneCUEP8M1_13TeV_pythia8_RunIIFall17_MiniAODSIM_60.root',
+'/store/user/bmarzocc/GluGluHToGX_RunIIFall17/MiniAODSIM/GluGluHToGX_M_125_TuneCUEP8M1_13TeV_pythia8_RunIIFall17_MiniAODSIM_61.root',
+'/store/user/bmarzocc/GluGluHToGX_RunIIFall17/MiniAODSIM/GluGluHToGX_M_125_TuneCUEP8M1_13TeV_pythia8_RunIIFall17_MiniAODSIM_62.root',
+'/store/user/bmarzocc/GluGluHToGX_RunIIFall17/MiniAODSIM/GluGluHToGX_M_125_TuneCUEP8M1_13TeV_pythia8_RunIIFall17_MiniAODSIM_63.root',
+'/store/user/bmarzocc/GluGluHToGX_RunIIFall17/MiniAODSIM/GluGluHToGX_M_125_TuneCUEP8M1_13TeV_pythia8_RunIIFall17_MiniAODSIM_64.root',
+'/store/user/bmarzocc/GluGluHToGX_RunIIFall17/MiniAODSIM/GluGluHToGX_M_125_TuneCUEP8M1_13TeV_pythia8_RunIIFall17_MiniAODSIM_65.root',
+'/store/user/bmarzocc/GluGluHToGX_RunIIFall17/MiniAODSIM/GluGluHToGX_M_125_TuneCUEP8M1_13TeV_pythia8_RunIIFall17_MiniAODSIM_66.root',
+'/store/user/bmarzocc/GluGluHToGX_RunIIFall17/MiniAODSIM/GluGluHToGX_M_125_TuneCUEP8M1_13TeV_pythia8_RunIIFall17_MiniAODSIM_67.root',
+'/store/user/bmarzocc/GluGluHToGX_RunIIFall17/MiniAODSIM/GluGluHToGX_M_125_TuneCUEP8M1_13TeV_pythia8_RunIIFall17_MiniAODSIM_68.root',
+'/store/user/bmarzocc/GluGluHToGX_RunIIFall17/MiniAODSIM/GluGluHToGX_M_125_TuneCUEP8M1_13TeV_pythia8_RunIIFall17_MiniAODSIM_69.root',
+'/store/user/bmarzocc/GluGluHToGX_RunIIFall17/MiniAODSIM/GluGluHToGX_M_125_TuneCUEP8M1_13TeV_pythia8_RunIIFall17_MiniAODSIM_7.root',
+'/store/user/bmarzocc/GluGluHToGX_RunIIFall17/MiniAODSIM/GluGluHToGX_M_125_TuneCUEP8M1_13TeV_pythia8_RunIIFall17_MiniAODSIM_70.root',
+'/store/user/bmarzocc/GluGluHToGX_RunIIFall17/MiniAODSIM/GluGluHToGX_M_125_TuneCUEP8M1_13TeV_pythia8_RunIIFall17_MiniAODSIM_71.root',
+'/store/user/bmarzocc/GluGluHToGX_RunIIFall17/MiniAODSIM/GluGluHToGX_M_125_TuneCUEP8M1_13TeV_pythia8_RunIIFall17_MiniAODSIM_72.root',
+'/store/user/bmarzocc/GluGluHToGX_RunIIFall17/MiniAODSIM/GluGluHToGX_M_125_TuneCUEP8M1_13TeV_pythia8_RunIIFall17_MiniAODSIM_73.root',
+'/store/user/bmarzocc/GluGluHToGX_RunIIFall17/MiniAODSIM/GluGluHToGX_M_125_TuneCUEP8M1_13TeV_pythia8_RunIIFall17_MiniAODSIM_74.root',
+'/store/user/bmarzocc/GluGluHToGX_RunIIFall17/MiniAODSIM/GluGluHToGX_M_125_TuneCUEP8M1_13TeV_pythia8_RunIIFall17_MiniAODSIM_75.root',
+'/store/user/bmarzocc/GluGluHToGX_RunIIFall17/MiniAODSIM/GluGluHToGX_M_125_TuneCUEP8M1_13TeV_pythia8_RunIIFall17_MiniAODSIM_76.root',
+'/store/user/bmarzocc/GluGluHToGX_RunIIFall17/MiniAODSIM/GluGluHToGX_M_125_TuneCUEP8M1_13TeV_pythia8_RunIIFall17_MiniAODSIM_77.root',
+'/store/user/bmarzocc/GluGluHToGX_RunIIFall17/MiniAODSIM/GluGluHToGX_M_125_TuneCUEP8M1_13TeV_pythia8_RunIIFall17_MiniAODSIM_78.root',
+'/store/user/bmarzocc/GluGluHToGX_RunIIFall17/MiniAODSIM/GluGluHToGX_M_125_TuneCUEP8M1_13TeV_pythia8_RunIIFall17_MiniAODSIM_79.root',
+'/store/user/bmarzocc/GluGluHToGX_RunIIFall17/MiniAODSIM/GluGluHToGX_M_125_TuneCUEP8M1_13TeV_pythia8_RunIIFall17_MiniAODSIM_8.root',
+'/store/user/bmarzocc/GluGluHToGX_RunIIFall17/MiniAODSIM/GluGluHToGX_M_125_TuneCUEP8M1_13TeV_pythia8_RunIIFall17_MiniAODSIM_80.root',
+'/store/user/bmarzocc/GluGluHToGX_RunIIFall17/MiniAODSIM/GluGluHToGX_M_125_TuneCUEP8M1_13TeV_pythia8_RunIIFall17_MiniAODSIM_81.root',
+'/store/user/bmarzocc/GluGluHToGX_RunIIFall17/MiniAODSIM/GluGluHToGX_M_125_TuneCUEP8M1_13TeV_pythia8_RunIIFall17_MiniAODSIM_82.root',
+'/store/user/bmarzocc/GluGluHToGX_RunIIFall17/MiniAODSIM/GluGluHToGX_M_125_TuneCUEP8M1_13TeV_pythia8_RunIIFall17_MiniAODSIM_83.root',
+'/store/user/bmarzocc/GluGluHToGX_RunIIFall17/MiniAODSIM/GluGluHToGX_M_125_TuneCUEP8M1_13TeV_pythia8_RunIIFall17_MiniAODSIM_84.root',
+'/store/user/bmarzocc/GluGluHToGX_RunIIFall17/MiniAODSIM/GluGluHToGX_M_125_TuneCUEP8M1_13TeV_pythia8_RunIIFall17_MiniAODSIM_85.root',
+'/store/user/bmarzocc/GluGluHToGX_RunIIFall17/MiniAODSIM/GluGluHToGX_M_125_TuneCUEP8M1_13TeV_pythia8_RunIIFall17_MiniAODSIM_86.root',
+'/store/user/bmarzocc/GluGluHToGX_RunIIFall17/MiniAODSIM/GluGluHToGX_M_125_TuneCUEP8M1_13TeV_pythia8_RunIIFall17_MiniAODSIM_87.root',
+'/store/user/bmarzocc/GluGluHToGX_RunIIFall17/MiniAODSIM/GluGluHToGX_M_125_TuneCUEP8M1_13TeV_pythia8_RunIIFall17_MiniAODSIM_88.root',
+'/store/user/bmarzocc/GluGluHToGX_RunIIFall17/MiniAODSIM/GluGluHToGX_M_125_TuneCUEP8M1_13TeV_pythia8_RunIIFall17_MiniAODSIM_89.root',
+'/store/user/bmarzocc/GluGluHToGX_RunIIFall17/MiniAODSIM/GluGluHToGX_M_125_TuneCUEP8M1_13TeV_pythia8_RunIIFall17_MiniAODSIM_9.root',
+'/store/user/bmarzocc/GluGluHToGX_RunIIFall17/MiniAODSIM/GluGluHToGX_M_125_TuneCUEP8M1_13TeV_pythia8_RunIIFall17_MiniAODSIM_90.root',
+'/store/user/bmarzocc/GluGluHToGX_RunIIFall17/MiniAODSIM/GluGluHToGX_M_125_TuneCUEP8M1_13TeV_pythia8_RunIIFall17_MiniAODSIM_91.root',
+'/store/user/bmarzocc/GluGluHToGX_RunIIFall17/MiniAODSIM/GluGluHToGX_M_125_TuneCUEP8M1_13TeV_pythia8_RunIIFall17_MiniAODSIM_92.root',
+'/store/user/bmarzocc/GluGluHToGX_RunIIFall17/MiniAODSIM/GluGluHToGX_M_125_TuneCUEP8M1_13TeV_pythia8_RunIIFall17_MiniAODSIM_93.root',
+'/store/user/bmarzocc/GluGluHToGX_RunIIFall17/MiniAODSIM/GluGluHToGX_M_125_TuneCUEP8M1_13TeV_pythia8_RunIIFall17_MiniAODSIM_94.root',
+'/store/user/bmarzocc/GluGluHToGX_RunIIFall17/MiniAODSIM/GluGluHToGX_M_125_TuneCUEP8M1_13TeV_pythia8_RunIIFall17_MiniAODSIM_95.root',
+'/store/user/bmarzocc/GluGluHToGX_RunIIFall17/MiniAODSIM/GluGluHToGX_M_125_TuneCUEP8M1_13TeV_pythia8_RunIIFall17_MiniAODSIM_96.root',
+'/store/user/bmarzocc/GluGluHToGX_RunIIFall17/MiniAODSIM/GluGluHToGX_M_125_TuneCUEP8M1_13TeV_pythia8_RunIIFall17_MiniAODSIM_97.root',
+'/store/user/bmarzocc/GluGluHToGX_RunIIFall17/MiniAODSIM/GluGluHToGX_M_125_TuneCUEP8M1_13TeV_pythia8_RunIIFall17_MiniAODSIM_98.root',
+'/store/user/bmarzocc/GluGluHToGX_RunIIFall17/MiniAODSIM/GluGluHToGX_M_125_TuneCUEP8M1_13TeV_pythia8_RunIIFall17_MiniAODSIM_99.root']
+
+# This string is used to construct the output dataset name
+#config.Data.publishDataName = 'CRAB3-tutorial'
+config.Data.outLFNDirBase      =  '/store/user/bmarzocc/MiniAODSIM/'
+
+config.section_('Site')
+# Where the output files will be transmitted to
+config.Site.storageSite        = 'T2_CH_CERN'
+config.Site.whitelist = ['T2_CH_CERN']
+
+
+## config.Data.allowNonValidInputDataset=True
