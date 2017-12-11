@@ -179,30 +179,34 @@
     
       * Input name the same as step1 output
       
-    ```Pythonscript
-    process.source = cms.Source("PoolSource",
-         fileNames = cms.untracked.vstring('file:step0.root'),
-         secondaryFileNames = cms.untracked.vstring()
-    )
-    ```
-    ...
-    ```Pythonscript
+      ```Pythonscript
+      process.source = cms.Source("PoolSource",
+            fileNames = cms.untracked.vstring('file:step0.root'),
+            secondaryFileNames = cms.untracked.vstring()
+      )
+      ```
+      ...
+      ```Pythonscript
     
-    process.MINIAODSIMoutput = cms.OutputModule("PoolOutputModule",
-         compressionAlgorithm = cms.untracked.string('LZMA'),
-         compressionLevel = cms.untracked.int32(4),
-         dataset = cms.untracked.PSet(
-            dataTier = cms.untracked.string('MINIAODSIM'),
-            filterName = cms.untracked.string('')
-         ),
-         dropMetaData = cms.untracked.string('ALL'),
-         eventAutoFlushCompressedSize = cms.untracked.int32(-900),
-         fastCloning = cms.untracked.bool(False),
-         fileName = cms.untracked.string('file:OUTPUTFile.root'),
-         ...
-    ```
-    ...
-      
+      process.MINIAODSIMoutput = cms.OutputModule("PoolOutputModule",
+            compressionAlgorithm = cms.untracked.string('LZMA'),
+            compressionLevel = cms.untracked.int32(4),
+            dataset = cms.untracked.PSet(
+               dataTier = cms.untracked.string('MINIAODSIM'),
+               filterName = cms.untracked.string('')
+            ),
+            dropMetaData = cms.untracked.string('ALL'),
+            eventAutoFlushCompressedSize = cms.untracked.int32(-900),
+            fastCloning = cms.untracked.bool(False),
+            fileName = cms.untracked.string('file:OUTPUTFile.root'),
+            ...
+      ```
+      ...
+
+5) Publish samples:
+
+    * Mody accordingly and submit on crab3: crab_cfg_publish.py
+
       
 4) Run GEN analysis:
 
