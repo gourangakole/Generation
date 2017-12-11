@@ -43,32 +43,48 @@
       ...
       ```Pythonscript
       
-import SimGeneral.Configuration.ThrowAndSetRandomRun as ThrowAndSetRandomRun
-ThrowAndSetRandomRun.throwAndSetRandomRun(process.source,[(JOBID,1)])
+      import SimGeneral.Configuration.ThrowAndSetRandomRun as ThrowAndSetRandomRun
+      ThrowAndSetRandomRun.throwAndSetRandomRun(process.source,[(JOBID,1)])
 
-process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
+      process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
 
-    externalLHEProducer = cms.PSet(
-       initialSeed = cms.untracked.uint32(SEED1),
-       engineName = cms.untracked.string('HepJamesRandom')
-    ),
-    generator = cms.PSet(
-       initialSeed = cms.untracked.uint32(SEED2),
-       engineName = cms.untracked.string('HepJamesRandom')
-    ),
-    VtxSmeared = cms.PSet(
-       initialSeed = cms.untracked.uint32(SEED3),
-       engineName = cms.untracked.string('HepJamesRandom')
-    ),
-    g4SimHits = cms.PSet(
-       initialSeed = cms.untracked.uint32(SEED4),
-       engineName = cms.untracked.string('HepJamesRandom')
-    )
+         externalLHEProducer = cms.PSet(
+            initialSeed = cms.untracked.uint32(SEED1),
+            engineName = cms.untracked.string('HepJamesRandom')
+         ),
+         generator = cms.PSet(
+            initialSeed = cms.untracked.uint32(SEED2),
+            engineName = cms.untracked.string('HepJamesRandom')
+         ),
+         VtxSmeared = cms.PSet(
+            initialSeed = cms.untracked.uint32(SEED3),
+            engineName = cms.untracked.string('HepJamesRandom')
+         ),
+         g4SimHits = cms.PSet(
+            initialSeed = cms.untracked.uint32(SEED4),
+            engineName = cms.untracked.string('HepJamesRandom')
+         )
 
-)
+      )
       ```
       ...
-      
+      ```Pythonscript
+      process.RAWSIMoutput = cms.OutputModule("PoolOutputModule",
+         SelectEvents = cms.untracked.PSet(
+            SelectEvents = cms.vstring('generation_step')
+         ),
+         compressionAlgorithm = cms.untracked.string('LZMA'),
+         compressionLevel = cms.untracked.int32(9),
+         dataset = cms.untracked.PSet(
+            dataTier = cms.untracked.string('GEN-SIM'),
+            filterName = cms.untracked.string('')
+         ),
+         eventAutoFlushCompressedSize = cms.untracked.int32(20971520),
+         fileName = cms.untracked.string('file:OUTPUTFILEName.root'),
+         outputCommands = process.RAWSIMEventContent.outputCommands,
+         splitLevel = cms.untracked.int32(0)
+      )
+      ```
       
 3)
 
