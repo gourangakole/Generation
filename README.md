@@ -32,7 +32,7 @@
       * X509_USER_PROXY: path of the proxy (before launching better do: export X509_USER_PROXY=/afs/cern.ch/work//XXX/x509up_XXX)
       * QUEUE: lxbatch queue
       
-    * NOTE: Any new GEN-SIM step cfg can be adapted in order to work with this package. Change/add the following lines:
+    * NOTE: Any new GEN-SIM step cfg can be adapted in order to work with this package. Change/add the following lines
     
       ...
       ```Pythonscript
@@ -85,9 +85,125 @@
          splitLevel = cms.untracked.int32(0)
       )
       ```
+      ...
+      ```Pythonscript
+      process.externalLHEProducer = cms.EDProducer("ExternalLHEProducer",
+         nEvents = cms.untracked.uint32(EVENTSperJOB),
+         outputFile = cms.string('cmsgrid_final.lhe'),
+         scriptName = cms.FileInPath('GeneratorInterface/LHEInterface/data/run_generic_tarball_cvmfs.sh'),
+         numberOfParameters = cms.uint32(1),
+         args = cms.vstring('GRIDPACK')
+      )
+      ```
+      ...
       
-3)
+3) Run GEN-SIM production on lxbatch:
 
+    * launch step:
+   
+      * cd ProduceDIGIRECO/lxbatch/
+      * perl launchJobs_lxbatch_step1_step2.pl params_lxbatch_step1_step2.CFG
+      * sh lancia.sh
+      
+    * Parameters settings in "params_lxbatch_step1_step2.CFG":
+   
+      * BASEDir: absolute path of the lxbatch directory
+      * JOBdir: directory to store job directories
+      * JOBCfgTemplate1: name of the step1 python to launch
+      * JOBCfgTemplate2: name of the step2 python to launch
+      * LISTOFSamples: directory of input GEN-SIM
+      * OUTPUTSAVEPath: path of the output files (EOS directories as default)
+      * OUTPUTFILEName: name of the output file.root
+      * EXEName1: name of the step1 job executable
+      * EXEName2: name of the step2 job executable
+      * SCRAM_ARCH: scram_arch
+      * X509_USER_PROXY: path of the proxy (before launching better do: export X509_USER_PROXY=/afs/cern.ch/work//XXX/x509up_XXX)
+      * QUEUE: lxbatch queue
+      * JOBModulo: number of root files to read per job
+      
+    * NOTE1: Any new DIGI-RECO step1 cfg can be adapted in order to work with this package. Change/add the folowing lines
+    
+      * Be careful that the "process.mix.input.fileNames = cms.untracked.vstring([])" string of PU minimum bias sample is long enough, so you don't use the same PU for each job
+  
+      ...
+      ```Pythonscript
+      process.source = cms.Source("PoolSource",
+         dropDescendantsOfDroppedBranches = cms.untracked.bool(False),
+         fileNames = cms.untracked.vstring([LISTOFFILES]),
+         inputCommands = cms.untracked.vstring('keep *', 
+            'drop *_genParticles_*_*', 
+            'drop *_genParticlesForJets_*_*', 
+            'drop *_kt4GenJets_*_*', 
+            'drop *_kt6GenJets_*_*', 
+            'drop *_iterativeCone5GenJets_*_*', 
+            'drop *_ak4GenJets_*_*', 
+            'drop *_ak7GenJets_*_*', 
+            'drop *_ak8GenJets_*_*', 
+            'drop *_ak4GenJetsNoNu_*_*', 
+            'drop *_ak8GenJetsNoNu_*_*', 
+            'drop *_genCandidatesForMET_*_*', 
+            'drop *_genParticlesForMETAllVisible_*_*', 
+            'drop *_genMetCalo_*_*', 
+            'drop *_genMetCaloAndNonPrompt_*_*', 
+            'drop *_genMetTrue_*_*', 
+            'drop *_genMetIC5GenJs_*_*'),
+         secondaryFileNames = cms.untracked.vstring()
+      )
+      ```
+      ...
+      ```Pythonscript
+      
+      process.RAWSIMoutput = cms.OutputModule("PoolOutputModule",
+         compressionAlgorithm = cms.untracked.string('LZMA'),
+         compressionLevel = cms.untracked.int32(9),
+         dataset = cms.untracked.PSet(
+            dataTier = cms.untracked.string('GEN-SIM-RAW'),
+            filterName = cms.untracked.string('')
+         ),
+         eventAutoFlushCompressedSize = cms.untracked.int32(20971520),
+         fileName = cms.untracked.string('file:step0.root'),
+         outputCommands = process.RAWSIMEventContent.outputCommands,
+         splitLevel = cms.untracked.int32(0)
+      )
+      ```
+      ...
+      ```Pythonscript
+     
+      import random
+      process.RandomNumberGeneratorService.generator.initialSeed = cms.untracked.uint32(SEED)
+      random.seed(process.RandomNumberGeneratorService.generator.initialSeed.value())
+      random.shuffle(process.mix.input.fileNames)
+      ```
+      
+    * NOTE2: Any new DIGI-RECO step2 cfg can be adapted in order to work with this package. Change/add the folowing lines
+    
+      * Input name the same as step1 output
+      
+    ```Pythonscript
+    process.source = cms.Source("PoolSource",
+         fileNames = cms.untracked.vstring('file:step0.root'),
+         secondaryFileNames = cms.untracked.vstring()
+    )
+    ```
+    ...
+    ```Pythonscript
+    
+    process.MINIAODSIMoutput = cms.OutputModule("PoolOutputModule",
+         compressionAlgorithm = cms.untracked.string('LZMA'),
+         compressionLevel = cms.untracked.int32(4),
+         dataset = cms.untracked.PSet(
+            dataTier = cms.untracked.string('MINIAODSIM'),
+            filterName = cms.untracked.string('')
+         ),
+         dropMetaData = cms.untracked.string('ALL'),
+         eventAutoFlushCompressedSize = cms.untracked.int32(-900),
+         fastCloning = cms.untracked.bool(False),
+         fileName = cms.untracked.string('file:OUTPUTFile.root'),
+         ...
+    ```
+    ...
+      
+      
 4) Run GEN analysis:
 
     * cd Generation/GenStudies
