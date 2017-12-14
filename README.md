@@ -1,16 +1,14 @@
 # Generation
 
-1) Install:
+1) Run GEN-SIM production on lxbatch (CMSSW_9_3_X 2017 MC_v2 campaign):
 
-    * scram project CMSSW_9_2_7
-    * cd CMSSW_9_2_7/src/
+    * scram project CMSSW_9_3_4
+    * cd CMSSW_9_3_4/src/
     * cmsenv
     * git clone  git@github.com:bmarzocc/Generation.git
     * cd Generation
+    * git checkout 93X
     * scram b -j 5
-
-2) Run GEN-SIM production on lxbatch:
-
     * launch step:
    
       * cd ProduceGENSIM/lxbatch/
@@ -32,7 +30,7 @@
       * X509_USER_PROXY: path of the proxy (before launching better do: export X509_USER_PROXY=/afs/cern.ch/work//XXX/x509up_XXX)
       * QUEUE: lxbatch queue
       
-    * NOTE: Any new GEN-SIM step cfg can be adapted in order to work with this package. Change/add the following lines
+    * NOTE: Any new GEN-SIM step cfg (different MC production campaign) can be adapted in order to work with this package. Change/add the following lines
     
       ...
       ```Pythonscript
@@ -97,8 +95,26 @@
       ```
       ...
       
-3) Run GEN-SIM production on lxbatch:
+2) Run GEN analysis (whichever release):
+    
+    * scram project CMSSW_9_3_4
+    * cd CMSSW_9_3_4/src/
+    * cmsenv
+    * git clone  git@github.com:bmarzocc/Generation.git
+    * cd Generation
+    * scram b -j 5
+    * cd Generation/GenStudies
+    * GenParticlesAnalysis python/GenParticlesAnalysis_cfg.py
 
+3) Run DIGI-RECO production on lxbatch (CMSSW_9_4_X 2017 MC_v2 campaign):
+
+    * scram project CMSSW_9_4_0
+    * cd CMSSW_9_4_0/src/
+    * cmsenv
+    * git clone  git@github.com:bmarzocc/Generation.git
+    * cd Generation
+    * git checkout 94X
+    * scram b -j 5
     * launch step:
    
       * cd ProduceDIGIRECO/lxbatch/
@@ -121,7 +137,7 @@
       * QUEUE: lxbatch queue
       * JOBModulo: number of root files to read per job
       
-    * NOTE1: Any new DIGI-RECO step1 cfg can be adapted in order to work with this package. Change/add the folowing lines
+    * NOTE1: Any new DIGI-RECO step1 cfg (different MC production campaign) can be adapted in order to work with this package. Change/add the folowing lines
     
       * Be careful that the "process.mix.input.fileNames = cms.untracked.vstring([])" string of PU minimum bias sample is long enough, so you don't use the same PU for each job
   
@@ -203,12 +219,13 @@
       ```
       ...
 
-4) Publish samples:
+4) Publish samples (whichever release):
 
+    * scram project CMSSW_9_4_0
+    * cd CMSSW_9_4_0/src/
+    * cmsenv
+    * git clone  git@github.com:bmarzocc/Generation.git
+    * cd Generation
+    * scram b -j 5
+    * cd ProduceDIGIRECO/lxbatch/
     * Mody accordingly and submit on crab3: crab_cfg_publish.py
-
-      
-5) Run GEN analysis:
-
-    * cd Generation/GenStudies
-    * GenParticlesAnalysis python/GenParticlesAnalysis_cfg.py
