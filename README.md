@@ -2,8 +2,8 @@
 
 1) Run GEN-SIM production on lxbatch (CMSSW_9_3_X 2017 MC_v2 campaign):
 
-    * scram project CMSSW_9_3_4
-    * cd CMSSW_9_3_4/src/
+    * scram project CMSSW_9_3_1
+    * cd CMSSW_9_3_1/src/
     * cmsenv
     * git clone  git@github.com:bmarzocc/Generation.git
     * cd Generation
@@ -97,8 +97,8 @@
       
 2) Run GEN analysis (whichever release):
     
-    * scram project CMSSW_9_3_4
-    * cd CMSSW_9_3_4/src/
+    * scram project CMSSW_9_3_1
+    * cd CMSSW_9_3_1/src/
     * cmsenv
     * git clone  git@github.com:bmarzocc/Generation.git
     * cd Generation
@@ -108,8 +108,8 @@
 
 3) Run DIGI-RECO production on lxbatch (CMSSW_9_4_X 2017 MC_v2 campaign):
 
-    * scram project CMSSW_9_4_0
-    * cd CMSSW_9_4_0/src/
+    * scram project CMSSW_9_4_0_patch1
+    * cd CMSSW_9_4_0_patch1/src/
     * cmsenv
     * git clone  git@github.com:bmarzocc/Generation.git
     * cd Generation
@@ -221,8 +221,8 @@
 
 4) Publish samples (whichever release):
 
-    * scram project CMSSW_9_4_0
-    * cd CMSSW_9_4_0/src/
+    * scram project CMSSW_9_4_0_patch1
+    * cd CMSSW_9_4_0_patch1/src/
     * cmsenv
     * git clone  git@github.com:bmarzocc/Generation.git
     * cd Generation
