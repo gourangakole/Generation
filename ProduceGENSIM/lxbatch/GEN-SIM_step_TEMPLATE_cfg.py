@@ -5,9 +5,7 @@
 # with command line options: Configuration/GenProduction/python/EXO-RunIISummer15wmLHEGS-05061-fragment.py --mc --eventcontent RAWSIM,LHE --datatier GEN-SIM,LHE --conditions 93X_mc2017_realistic_v3 --beamspot Realistic25ns13TeVEarly2017Collision --step LHE,GEN,SIM --nThreads 8 --geometry DB:Extended --era Run2_2017 --fileout file:step0.root --python_filename EXO-RunIISummer15wmLHEGS-05061_1_cfg.py --no_exec -n 184
 import FWCore.ParameterSet.Config as cms
 
-from Configuration.StandardSequences.Eras import eras
-
-process = cms.Process('SIM',eras.Run2_2017)
+process = cms.Process('SIM')
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
@@ -16,10 +14,10 @@ process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
 process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
-process.load('Configuration.StandardSequences.GeometrySimDB_cff')
-process.load('Configuration.StandardSequences.MagneticField_cff')
+process.load('Configuration.Geometry.GeometrySimDB_cff')
+process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
 process.load('Configuration.StandardSequences.Generator_cff')
-process.load('IOMC.EventVertexGenerators.VtxSmearedRealistic25ns13TeVEarly2017Collision_cfi')
+process.load('IOMC.EventVertexGenerators.VtxSmearedRealistic50ns13TeVCollision_cfi')
 process.load('GeneratorInterface.Core.genFilterSummary_cff')
 process.load('Configuration.StandardSequences.SimIdeal_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
@@ -104,7 +102,7 @@ process.LHEoutput = cms.OutputModule("PoolOutputModule",
 process.XMLFromDBSource.label = cms.string("Extended")
 process.genstepfilter.triggerConditions=cms.vstring("generation_step")
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, '93X_mc2017_realistic_v3', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'MCRUN2_71_V1::All', '')
 
 import FWCore.ParameterSet.Config as cms
 
@@ -147,21 +145,22 @@ process.LHEoutput_step = cms.EndPath(process.LHEoutput)
 
 # Schedule definition
 process.schedule = cms.Schedule(process.lhe_step,process.generation_step,process.genfiltersummary_step,process.simulation_step,process.endjob_step,process.RAWSIMoutput_step,process.LHEoutput_step)
-from PhysicsTools.PatAlgos.tools.helpers import associatePatAlgosToolsTask
-associatePatAlgosToolsTask(process)
 
 #Setup FWK for multithreaded
-process.options.numberOfThreads=cms.untracked.uint32(8)
-process.options.numberOfStreams=cms.untracked.uint32(0)
+#process.options.numberOfThreads=cms.untracked.uint32(8)
+#process.options.numberOfStreams=cms.untracked.uint32(0)
 # filter all path with the production filter sequence
 for path in process.paths:
 	if path in ['lhe_step']: continue
 	getattr(process,path)._seq = process.generator * getattr(process,path)._seq 
 
 
-# Customisation from command line
+# customisation of the process.
 
-# Add early deletion of temporary data products to reduce peak memory need
-from Configuration.StandardSequences.earlyDeleteSettings_cff import customiseEarlyDelete
-process = customiseEarlyDelete(process)
-# End adding early deletion
+# Automatic addition of the customisation function from SLHCUpgradeSimulations.Configuration.postLS1Customs
+from SLHCUpgradeSimulations.Configuration.postLS1Customs import customisePostLS1 
+
+#call to customisation function customisePostLS1 imported from SLHCUpgradeSimulations.Configuration.postLS1Customs
+process = customisePostLS1(process)
+
+# End of customisation functions
