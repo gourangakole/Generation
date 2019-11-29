@@ -30,9 +30,10 @@ void draw_Plots() {
   gStyle->SetOptStat(0);
 
   // inputs
-  TFile* inFile1 = TFile::Open("/afs/cern.ch/user/b/bmarzocc/www/GluGluHToGG_M-125_13TeV_powheg_pythia8/GEN/genParticles/GenParticlesAnalysis.root");
-  TFile* inFile2 = TFile::Open("/afs/cern.ch/user/b/bmarzocc/www/GluGluHToGX_M_125_TuneCUEP8M1_13TeV_pythia8_RunIIFall17/GEN-SIM/genParticles/GenParticlesAnalysis.root");
-
+  //  TFile* inFile1 = TFile::Open("/afs/cern.ch/user/b/bmarzocc/www/GluGluHToGG_M-125_13TeV_powheg_pythia8/GEN/genParticles/GenParticlesAnalysis.root");
+  //  TFile* inFile2 = TFile::Open("/afs/cern.ch/user/b/bmarzocc/www/GluGluHToGX_M_125_TuneCUEP8M1_13TeV_pythia8_RunIIFall17/GEN-SIM/genParticles/GenParticlesAnalysis.root");
+  TFile* inFile1 = TFile::Open("/home/gouranga/Downloads/temp/histos_photon_26x.root");
+  TFile* inFile2 = TFile::Open("/home/gouranga/Downloads/temp/histos_photon_24x.root");
   vector<TH1F*> histos_f1;
   vector<TH1F*> histos_f2;
 
@@ -54,6 +55,8 @@ void draw_Plots() {
              "will not be converted\n",obj->GetName()) ;
     }
     //printf("Histo name:%s title:%s\n",obj->GetName(),obj->GetTitle());
+    cout << "obj->IsA()  " << obj->IsA()->GetName() << endl; // TTree
+    if(obj->InheritsFrom("TTree")) continue;
     h_tmp = (TH1F*)inFile1->Get(obj->GetName());
     histos_f1.push_back(h_tmp);
   }
@@ -72,14 +75,16 @@ void draw_Plots() {
              "will not be converted\n",obj->GetName()) ;
     }
     printf("Histo name:%s title:%s\n",obj->GetName(),obj->GetTitle());
+    if(obj->InheritsFrom("TTree")) continue;
     h_tmp = (TH1F*)inFile2->Get(obj->GetName());
     histos_f2.push_back(h_tmp);
   }
 
+  
   for(unsigned int ii=0; ii<histos_f1.size(); ii++)
       for(unsigned int jj=0; jj<histos_f2.size(); jj++) {
           if(string(histos_f1.at(ii)->GetName()) != string(histos_f2.at(jj)->GetName())) continue;
-          compareHistos(histos_f1.at(ii), histos_f2.at(jj), string("../output"), string("GeV"), string("GluGluHToGG"), string("GluGluHToGX"));
+          compareHistos(histos_f1.at(ii), histos_f2.at(jj), string("../output"), string("GeV"), string("MG_26x"), string("MG_24x"));
       }
   
 }
@@ -92,10 +97,11 @@ void compareHistos(TH1F* h, TH1F* h2, string outputDir = "../output", string uni
      h2->SetLineWidth(2);
 
      h->Scale(h2->Integral()/h->Integral());
-     
+
+     //cout << "h->GetYaxis()->Get"
      // plotting
      setStyle();
-
+     /*
      int nbins = h->GetNbinsX();
      float xmin = h->GetBinCenter(1)-h->GetBinWidth(1)/2;
      float xmax = h->GetBinCenter(nbins)+h->GetBinWidth(nbins)/2;
@@ -108,7 +114,7 @@ void compareHistos(TH1F* h, TH1F* h2, string outputDir = "../output", string uni
      float maximum = h->GetMaximum();
      if(maximum < h2->GetMaximum()) maximum = h2->GetMaximum();
      H2->GetYaxis()->SetRangeUser(0.9,1.01*maximum);
-
+     */
      TLegend *leg;
      leg = new TLegend(0.68,0.70,0.88,0.90);
      leg->SetFillStyle(0);
@@ -120,14 +126,15 @@ void compareHistos(TH1F* h, TH1F* h2, string outputDir = "../output", string uni
      
      TCanvas* c1 = new TCanvas("c1","c1",1);
      FPCanvasStyle(c1);
-     H2->Draw();
-     h2->Draw("H,same");
-     h->Draw("H,same");
-     leg->Draw("same");
+     //H2->Draw();
+     h2->Draw("hist");
+     h->Draw("hist Same");
+     leg->Draw("");
      c1->SaveAs((outputDir+"/"+string(h->GetName())+".png").c_str());
      c1->SaveAs((outputDir+"/"+string(h->GetName())+".pdf").c_str());
-
-     TCanvas* c2 = new TCanvas("c2","c2",1);
+     
+     //TCanvas* c2 = new TCanvas("c2","c2",1);
+     /*
      FPCanvasStyle(c2);
      c2->SetLogy();
      H2->Draw();
@@ -136,10 +143,10 @@ void compareHistos(TH1F* h, TH1F* h2, string outputDir = "../output", string uni
      leg->Draw("same");
      c2->SaveAs((outputDir+"/"+string(h->GetName())+"_log.png").c_str());
      c2->SaveAs((outputDir+"/"+string(h->GetName())+"_log.pdf").c_str());
-
+     */
      delete c1;
-     delete c2;
-     delete H2;
+     //delete c2;
+     //delete H2;
      delete leg;
 }
 

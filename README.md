@@ -1,3 +1,11 @@
+# Plotiing
+```
+# update the input root file paths
+root -l -b draw_Plots.C
+```
+
+
+
 # Generation
 
 1) Run GEN-SIM production on lxbatch (CMSSW_9_3_X 2017 MC_v2 campaign):
